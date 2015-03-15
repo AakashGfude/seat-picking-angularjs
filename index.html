@@ -1,28 +1,15 @@
 <!doctype html>
 <html>
 <head>
-	<link rel="stylesheet" href="style/bootstrap.min.css">
+	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<script src="libs/jquery-1.11.2.min.js"></script>
 	<script src="libs/angular.min.js"></script>
 	<script src="libs/angular-ui-router.min.js"></script>
 	<script src="app.js"></script>
-   <link rel="stylesheet" href="style/style.css"></link>
+   <script src="factories.js"></script>
+   <script src="direcives.js"></script>
+   <link rel="stylesheet" href="css/style.css"></link>
 </head>
-<style type="text/css">
-body{
-	background-color: brown;
-}
-.main{
-	background-color: white;
-   margin-top: 40px;
-}
-.table{
-   float:left;
-}
-h1{
-   color: green;
-}
-</style>
 <body ng-app="app" ng-controller="MainCtrl">
 	<h1>
 		Seat picker App
@@ -33,8 +20,8 @@ h1{
    			<label>Name :</label>
    			<input type="text" ng-model="name">
    			<label>Seats:</label>
-   			<input type="number" max="6" ng-model="number" name="seats">
-   			<button ><a ui-sref="book">Book</a></button>
+   			<input type="number" max="6" min="1" ng-model="number" name="seats">
+   			<button class="btn btn-success"><a ui-sref="book">Book</a></button>
    		</form>
 
    	</div>

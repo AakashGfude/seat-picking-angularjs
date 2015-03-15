@@ -6,13 +6,14 @@ app.config(function($stateProvider,$urlRouterProvider){
 	$stateProvider
 	.state('book',{
 		url:'/book',
-		templateUrl: 'partials/seat-book.html',
+		templateUrl: 'seat-book.html',
     controller:'SecondCtrl'
 	})
 })
-app.controller('SecondCtrl',function($scope){
+app.controller('SecondCtrl',function($scope,seatarrangement,removeA){
 var name;
 var seats;
+$scope.tableheadings=['Name','No. of seats','Seat No.s'];
 $scope.seat='';
 $scope.tables=[];
 var bookedSeats = [5, 6, 7,9];
@@ -24,16 +25,6 @@ $scope.$watch('number',function(data){
   $scope.seat=data;
 })
 // function to remove an item from an array
-function removeA(arr) {
-    var what, a = arguments, L = a.length, ax;
-    while (L > 1 && arr.length) {
-        what = a[--L];
-        while ((ax= arr.indexOf(what)) !== -1) {
-            arr.splice(ax, 1);
-        }
-    }
-    return arr;
-}
 //this function is for selecting and deselecting seats and to prevent selection of already booked seats
 function place(bookedSeats){
 $('.' + settings.seatCss).click(function () {
@@ -57,8 +48,8 @@ else{
     }
 
 });
- 
-$('#btnShowNew').click(function () {
+ // this function is used for validation . 
+$scope.clicked=function () {
     var str = [], item;
     $.each($('#place li.' + settings.selectingSeatCss + ' a'), function (index, value) {
         item = $(this).attr('title');
@@ -66,13 +57,18 @@ $('#btnShowNew').click(function () {
         str.push(item);                  
     });
     
-  // if the number of seats you selected are different from what you chose
-      if($scope.names==undefined|| $scope.seat==undefined)
+  // if the Name or no. of seats input is blank 
+      if($scope.names==undefined||$scope.names==''|| $scope.seat==undefined)
     {
-      $("#total").text("* Name or no. of seats cannot be blank");
+      $scope.successfully=false;
+      $scope.errorr=true;
+      $scope.text=" Name or no. of seats cannot be blank";
+      
     }
-     else if(str.length!=$scope.seat)
-    { $("#total").text(" * You chose to book "+$scope.seat+" seat(s)");
+     else if(str.length!=$scope.seat) // if the number of seats you selected are different from what you chose
+    { $scope.successfully=false;
+      $scope.errorr=true;
+      $scope.text= " You chose to book "+$scope.seat+" seat(s)";
     seatss=[];
       $.each($('.'+settings.selectingSeatCss), function (index, value) {
             $(this).toggleClass(settings.selectingSeatCss); 
@@ -82,10 +78,12 @@ $('#btnShowNew').click(function () {
     else 
     {
        //proceeds  if you have selected the amount of seats you specified
-      $("#total").text("");
+       $scope.errorr=false;
+       $scope.successfully=true;
+      $scope.text="Your ticket has been booked successfully "+$scope.names;
       $scope.tables.push({'name':$scope.names,'seats':$scope.seat,'seatnos':seatss});
       seatss=[];
-      $scope.$digest();
+      //$scope.$digest();
       $.each($('.'+settings.selectingSeatCss), function (index, value) {
             $(this).toggleClass(settings.selectingSeatCss); 
       });
@@ -93,12 +91,11 @@ $('#btnShowNew').click(function () {
     }
    
     
-    if(($("#total").text()==""))
-      alert("Thanks "+ $scope.name+ " for booking your ticket");
-})
+    
+}
 };
 
-
+// this object has the properties for the seat map
 var settings = {
                rows: 7,
                cols: 10,                     
@@ -110,38 +107,9 @@ var settings = {
                selectedSeatCss: 'selectedSeat',
                selectingSeatCss: 'selectingSeat'                                      
            };
-var str = [], seatNo, className,colNo,rowNo;
 var seatss=[];
-var rowNo='A';
-var left=-50;
-// this function creates the seat map  , it assigns classes and aligns each individual seat
-var init=function (reservedSeat) {
-
-              
-                for (i = 0; i < settings.rows; i++) {
-                  str.push('<li style="top:' + (((i * (settings.seatHeight))-10)).toString() + 'px;left:' + left + 'px;font-size: 200%">' +
-                                  '<a title="' + rowNo + '">' + rowNo + '</a>' +
-                                  '</li>');
-                    for (j = 0; j < settings.cols; j++) {
-                        seatNo = (j + i * settings.cols + 1);
-                        
-                        colNo=j+1;
-
-                        
-                        className = settings.seatCss + ' ' + settings.rowCssPrefix + i.toString() + ' ' + settings.colCssPrefix + j.toString();
-                        if ($.isArray(reservedSeat) && $.inArray(seatNo, reservedSeat) != -1) {
-                            className += ' ' + settings.selectedSeatCss;
-                        }
-                        str.push('<li class="' + className + '"' +
-                                  'style="top:' + (i * settings.seatHeight).toString() + 'px;left:' + (j * settings.seatWidth).toString() + 'px">' +
-                                  '<a title="' + seatNo + '">' + colNo + '</a>' +
-                                  '</li>');
-                    }rowNo=String.fromCharCode(rowNo.charCodeAt() + 1);
-                }
-                $('#place').html(str.join(''));
-            };
-         
-            init(bookedSeats);
+// calling the factory to populate the view with  seat map
+seatarrangement(settings,bookedSeats)
 
   place(bookedSeats);
 });
